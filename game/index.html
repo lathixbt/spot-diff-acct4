@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Mountain Cabin Night — Spot the Difference</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #070d1f; color: #e8f0ff; font-family: "Trebuchet MS", Verdana, sans-serif; }
+  body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+  header { width: 1240px; max-width: 96vw; padding: 12px 4px 6px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h1 { font-size: 26px; letter-spacing: 1px; color: #ffd76a; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+  h1 small { display: block; font-size: 12px; letter-spacing: 3px; color: #7fe0a8; text-transform: uppercase; }
+  #scene-name { font-size: 18px; color: #fff; }
+  #scene-count { font-size: 13px; color: #9fb4d8; }
+  #hud { width: 1240px; max-width: 96vw; display: flex; gap: 10px; align-items: center; padding: 6px 4px; flex-wrap: wrap; }
+  .pill { background: #101c38; border: 1px solid #2a3f66; border-radius: 999px; padding: 6px 14px; font-size: 14px; white-space: nowrap; }
+  #to-find { background: #f5c542; color: #231a05; font-weight: bold; font-size: 17px; border-color: #f5c542; }
+  #timer { font-variant-numeric: tabular-nums; }
+  #strikes { color: #ff6b6b; font-weight: bold; letter-spacing: 2px; }
+  button { background: #1d3a5f; color: #e8f0ff; border: 1px solid #3a5a8a; border-radius: 8px; padding: 7px 12px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #2a4d7a; }
+  button.on { background: #f5c542; color: #231a05; border-color: #f5c542; }
+  .shake { animation: shake 0.35s; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  #stage { position: relative; width: 1240px; max-width: 96vw; }
+  #panels { display: flex; gap: 16px; justify-content: center; position: relative; }
+  .panel-wrap { position: relative; text-align: center; }
+  .panel-wrap canvas { display: block; width: 560px; max-width: 46vw; height: auto; border: 3px solid #2a3f66; border-radius: 10px; background: #0a1226; cursor: crosshair; }
+  .panel-tag { position: absolute; top: 8px; left: 10px; background: rgba(7,13,31,0.8); border: 1px solid #3a5a8a; border-radius: 6px; padding: 3px 9px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+  #vs { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 52px; height: 52px; border-radius: 50%; background: #f5c542; color: #231a05; font-weight: bold; font-size: 20px; display: flex; align-items: center; justify-content: center; border: 3px solid #fff3c4; z-index: 5; box-shadow: 0 4px 14px rgba(0,0,0,0.6); }
+  #footer { width: 1240px; max-width: 96vw; padding: 8px 4px 4px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  #found-label { font-size: 14px; }
+  #found-dots { display: flex; gap: 6px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; background: #22345c; border: 1px solid #3a5a8a; display: inline-block; }
+  .dot.found { background: #f5c542; border-color: #f5c542; }
+  #progress { flex: 1; min-width: 180px; height: 10px; background: #101c38; border-radius: 999px; overflow: hidden; border: 1px solid #2a3f66; }
+  #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #7fe0a8, #f5c542); }
+  #progress-label { font-size: 13px; color: #9fb4d8; white-space: nowrap; }
+  #scene-bar { display: flex; gap: 6px; flex-wrap: wrap; padding: 2px 4px 6px; }
+  .scene-btn { font-size: 12px; padding: 5px 9px; background: #101c38; }
+  .scene-btn.active { background: #f5c542; color: #231a05; border-color: #f5c542; }
+  .scene-btn.done { border-color: #7fe0a8; color: #7fe0a8; }
+  #howto { width: 1240px; max-width: 96vw; padding: 2px 4px 14px; font-size: 13px; color: #9fb4d8; line-height: 1.5; }
+  #howto b { color: #e8f0ff; }
+  #best-line { font-size: 13px; color: #7fe0a8; }
+  #overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(4,8,18,0.72); z-index: 10; border-radius: 10px; }
+  #overlay.hidden { display: none; }
+  .card { background: #101c38; border: 2px solid #f5c542; border-radius: 14px; padding: 26px 30px; max-width: 460px; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.7); }
+  .card h2 { color: #ffd76a; margin-bottom: 10px; font-size: 24px; }
+  .card p { margin: 8px 0; line-height: 1.5; }
+  .card button { margin-top: 12px; font-size: 16px; padding: 10px 20px; background: #f5c542; color: #231a05; border-color: #f5c542; font-weight: bold; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Mountain Cabin Night<small>Spot the Difference</small></h1>
+  <span id="scene-name">The Cabin Porch</span>
+  <span id="scene-count">Scene 1 of 6 · Par 02:30</span>
+</header>
+<div id="hud">
+  <span class="pill" id="to-find">8 to find</span>
+  <span class="pill">⏱ <span id="timer">00:00</span></span>
+  <span class="pill">Strikes <span id="strikes">···</span></span>
+  <button id="hint-btn">Hint (3)</button>
+  <button id="pause-btn">Pause</button>
+  <button id="sound-btn">Sound: on</button>
+  <button id="mag-btn">Magnifier</button>
+  <button id="restart-btn">Restart ↺</button>
+  <span class="pill" id="score">Score 0</span>
+  <span class="pill" id="streak">Streak ×0</span>
+</div>
+<div id="stage">
+  <div id="panels">
+    <div class="panel-wrap">
+      <span class="panel-tag">A · Original</span>
+      <canvas id="panel-left"></canvas>
+    </div>
+    <div id="vs">VS</div>
+    <div class="panel-wrap">
+      <span class="panel-tag">B · Spot the changes</span>
+      <canvas id="panel-right"></canvas>
+    </div>
+  </div>
+  <div id="overlay" class="hidden"></div>
+</div>
+<div id="footer">
+  <span id="found-label">Found: 0/8</span>
+  <span id="found-dots"></span>
+  <div id="progress"><div id="progress-fill"></div></div>
+  <span id="progress-label">0/50 differences · 0%</span>
+  <span id="best-line">Best: —</span>
+</div>
+<div id="scene-bar"></div>
+<div id="howto">
+  <b>How to play:</b> the two pictures look the same, but <b>8–9 things changed</b> on the right.
+  Click a difference on either side to ring it — every difference is fair: something removed,
+  recoloured, moved, resized, flipped or added. Three wrong clicks end the scene, so look before
+  you tap. <b>Hint</b> points at one you missed (3 per scene). <b>Keys:</b> arrows move the
+  crosshair · Enter guesses · H hint · P pause · M magnifier · N next · R restart. Six snowy
+  scenes, 50 differences, one quiet night.
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
